@@ -1,0 +1,8 @@
+/.idea/
+/.mypy_cache/
+*.dll
+*.so
+*.pyc
+*.pyo
+*.pyd
+*.exe
