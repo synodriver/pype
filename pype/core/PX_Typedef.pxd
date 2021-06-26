@@ -1,3 +1,4 @@
+# cython: language_level=3
 cdef extern from "..\..\PainterEngine\core\PX_Typedef.h" nogil:
     ctypedef     void                px_void
     ctypedef     int                 px_bool

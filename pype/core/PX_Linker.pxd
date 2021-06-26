@@ -1,3 +1,4 @@
+# cython: language_level=3
 from .PX_Typedef cimport *
 cdef extern from "..\..\PainterEngine\core\PX_Linker.h" nogil:
     ctypedef px_int(*PX_LinkerRead_func)(px_void *userPtr, px_void *data, px_int datasize)

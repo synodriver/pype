@@ -1,3 +1,4 @@
+# cython: language_level=3
 from .PX_Typedef cimport *
 cdef extern from "..\..\PainterEngine\core\PX_MemoryPool.h" nogil:
     cdef enum PX_MEMORYPOOL_ERROR:
