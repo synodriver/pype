@@ -1,3 +1,4 @@
+# cython: language_level=3
 from .PX_Typedef cimport *
 from .PX_MemoryPool cimport px_memorypool
 cdef extern from "..\..\PainterEngine\core\PX_String.h" nogil:
