@@ -264,7 +264,7 @@ cdef extern from "..\..\PainterEngine\core\PX_Core.h" nogil:
     px_bool PX_MemoryCat(px_memory *memory, const px_void *buffer, px_int size)  # 对自适应内存进行数据拼接
     px_bool PX_MemoryCopy(px_memory *memory, const px_void *buffer, px_int startoffset,
                           px_int size)  # 拷贝内存到目标内存结构中,注意,这个函数会依据拷贝内存大小自动调整内存部署
-    px_byte *PX_MemoryFine(px_memory *memory, const px_void *buffer, px_int size)  # 在内存中查找匹配内存 #todo 笔误
+    px_byte *PX_MemoryFind(px_memory *memory, const px_void *buffer, px_int size)  # 在内存中查找匹配内存 #todo 笔误
     px_void PX_MemoryRemove(px_memory *memory, px_int start, px_int end) # 移除一块内存区域,在区域之后的内存数据将自动拼接到移除的位置中
     px_void PX_MemoryFree(px_memory *memory)  # 	释放内存
     px_byte *PX_MemoryData(px_memory *memory)  # 取内存数据指针
