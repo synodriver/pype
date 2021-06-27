@@ -290,9 +290,7 @@ cdef extern from "..\..\PainterEngine\core\PX_Core.h" nogil:
     px_bool PX_StringIsNumeric(px_string *str)
     px_bool PX_StringIsFloat(px_string *str)
 
-    # px_void
-
-    PX_StringFormat(px_string *str, px_char fmt[], ...)
+    # px_void PX_StringFormat(px_string *str, px_char fmt[], ...)
     px_void PX_StringReplace(px_string *str, px_char *source, px_char *replaceto)
     px_bool PX_StringInsert(px_string *str, px_int insertIndex, const px_char *InstrString)
     px_bool PX_StringTrimer_Solve(px_string *pstring, px_char *parseCode, px_char *ReplaceCode)
