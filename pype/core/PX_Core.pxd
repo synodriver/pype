@@ -8,6 +8,7 @@ from .PX_List cimport *
 from .PX_Vector cimport *
 from .PX_Hashmap cimport *
 from .PX_Memory cimport *
+from .PX_String cimport *
 cdef extern from "..\..\PainterEngine\core\PX_Core.h" nogil:
     # PX_COUNTOF(x) (sizeof(x)/sizeof(x[0])) 预编译
     # 日志/调试信息
@@ -210,7 +211,7 @@ cdef extern from "..\..\PainterEngine\core\PX_Core.h" nogil:
     #取得结构体成员m对于结构体的偏移量#define PX_STRUCT_OFFSET(t,m)    ((((t *)0)->m-(px_byte *)0))
     px_void PX_CharIsNumeric(px_char ch)  # 判断字母是否是数字
     px_void PX_ListInitialize(px_list *list, px_memorypool *mp)  #对链表结构进行初始化
-    px_void*PX_ListPush(px_list *list, px_void *data, px_int size)  # 插入一个数据到链表
+    px_void*PX_ListPush(px_list *list, px_void *data, px_int size)  # 插入一个数据到链表 todo 和文档不一样
     px_bool PX_ListPop(px_list *list, px_list_node *node)  # 将一个节点为node的数据从链表中删除
     px_bool PX_ListErase(px_list *list, px_int i)
     px_list_node*PX_ListNodeAt(px_list *list, px_int index)  # 取得链表当前节点指
@@ -228,12 +229,12 @@ cdef extern from "..\..\PainterEngine\core\PX_Core.h" nogil:
     px_bool PX_VectorPushTo(px_vector *vec, px_void *data, px_int index)  # 在容器中指定位置添加一个元素
     px_bool PX_VectorSet(px_vector *vec, px_uint index,
                          px_void *data)  # 在容器中设定对应索引的元素,注意,如果索引小于分配容量,改容器将会重新分配内存空间以设定元素,同时索引小于使用大小,容器也会设定对应使用大小以适应设定索引
-    px_bool PX_VectorErase(px_vector *vec, px_int index) # 在容器中删除一个元素
+    px_bool PX_VectorErase(px_vector *vec, px_int index)  # 在容器中删除一个元素
     px_bool PX_VectorPop(px_vector *vec)
-    px_void PX_VectorClear(px_vector *vec) # 清空容器
-    px_bool PX_VectorCopy(px_vector *destvec, px_vector *resvec) # 拷贝容器
-    px_void PX_VectorFree(px_vector *vec) # 释放容器,同时释放内存,若需要重新使用该容器必须对其重新初始化
-    px_bool PX_VectorResize(px_vector *vec, px_int size) #重置容器的大小
+    px_void PX_VectorClear(px_vector *vec)  # 清空容器
+    px_bool PX_VectorCopy(px_vector *destvec, px_vector *resvec)  # 拷贝容器
+    px_void PX_VectorFree(px_vector *vec)  # 释放容器,同时释放内存,若需要重新使用该容器必须对其重新初始化
+    px_bool PX_VectorResize(px_vector *vec, px_int size)  #重置容器的大小
     #define PX_VectorSize(x) ((x)->size)
     #ifdef PX_DEBUG_MODE
     #define PX_VECTORAT(t,vec,i) (sizeof(t)==(vec)->nodesize?((t *)((px_byte *)((vec)->data)+(vec)->nodesize*(i))):PX_NULL)
@@ -256,13 +257,68 @@ cdef extern from "..\..\PainterEngine\core\PX_Core.h" nogil:
     px_void PX_MapFree(px_map *m)
     px_int PX_MapGetSize(px_map *m)
     #自适应内存
-    px_void PX_MemoryInitialize(px_memorypool *mp,px_memory *memory);
-    px_void PX_MemoryClear(px_memory *memory);
-    px_bool PX_MemoryAlloc(px_memory *memory,px_int size);
-    px_bool PX_MemoryResize(px_memory *memory,px_int size);
-    px_bool PX_MemoryCat(px_memory *memory,const px_void *buffer,px_int size);
-    px_bool PX_MemoryCopy(px_memory *memory,const px_void *buffer,px_int startoffset,px_int size);
-    px_byte *PX_MemoryFine(px_memory *memory,const px_void *buffer,px_int size);
-    px_void PX_MemoryRemove(px_memory *memory,px_int start,px_int end);
-    px_void PX_MemoryFree(px_memory *memory);
-    px_byte *PX_MemoryData(px_memory *memory);
+    px_void PX_MemoryInitialize(px_memorypool *mp, px_memory *memory)  # 对自适应内存结构进行初始化
+    px_void PX_MemoryClear(px_memory *memory) # 清空内存,这个函数并不会释放占用内存空间
+    px_bool PX_MemoryAlloc(px_memory *memory, px_int size)
+    px_bool PX_MemoryResize(px_memory *memory, px_int size)  # 重置内存分配大小
+    px_bool PX_MemoryCat(px_memory *memory, const px_void *buffer, px_int size)  # 对自适应内存进行数据拼接
+    px_bool PX_MemoryCopy(px_memory *memory, const px_void *buffer, px_int startoffset,
+                          px_int size)  # 拷贝内存到目标内存结构中,注意,这个函数会依据拷贝内存大小自动调整内存部署
+    px_byte *PX_MemoryFine(px_memory *memory, const px_void *buffer, px_int size)  # 在内存中查找匹配内存 #todo 笔误
+    px_void PX_MemoryRemove(px_memory *memory, px_int start, px_int end) # 移除一块内存区域,在区域之后的内存数据将自动拼接到移除的位置中
+    px_void PX_MemoryFree(px_memory *memory)  # 	释放内存
+    px_byte *PX_MemoryData(px_memory *memory)  # 取内存数据指针
+    # 内存自适应字符串
+    #define PX_STRING_DATA(x) (x->buffer)
+    px_bool PX_StringInitialize(px_memorypool *mp, px_string *str)
+    px_void PX_StringInitFromConst(px_string *str, const px_char *constchar)
+    px_int PX_StringToInteger(px_string *str)
+    px_float PX_StringToFloat(px_string *str)
+    px_void PX_StringTrim(px_string *str)
+    px_bool PX_StringCat(px_string *str, const px_char *str2)
+    px_void PX_StringClear(px_string *str)
+    px_bool PX_StringCatChar(px_string *str, px_char ch)
+    px_int  PX_StringLen(px_string *str)
+    px_void PX_StringFree(px_string *str)
+    px_bool PX_StringCopy(px_string *dest, px_string *res)
+    px_bool PX_StringInsertChar(px_string *str, px_int index, px_char ch)
+    px_bool PX_StringRemoveChar(px_string *str, px_int index)
+    px_void PX_StringReplaceRange(px_string *str, px_int startindex, px_int endindex, px_char *replaceto)
+    px_void PX_StringTrimLeft(px_string *str, px_int leftCount)
+    px_void PX_StringTrimRight(px_string *str, px_int RightCount)
+
+    px_bool PX_StringIsNumeric(px_string *str)
+    px_bool PX_StringIsFloat(px_string *str)
+
+    # px_void
+
+    PX_StringFormat(px_string *str, px_char fmt[], ...)
+    px_void PX_StringReplace(px_string *str, px_char *source, px_char *replaceto)
+    px_bool PX_StringInsert(px_string *str, px_int insertIndex, const px_char *InstrString)
+    px_bool PX_StringTrimer_Solve(px_string *pstring, px_char *parseCode, px_char *ReplaceCode)
+    px_void PX_StringInitAlloc(px_memorypool *mp, px_string *str, px_int allocSize)
+
+    px_bool PX_StringFormat8(px_string *str, const px_char fmt[], px_stringformat _1, px_stringformat _2,
+                             px_stringformat _3, px_stringformat _4, px_stringformat _5, px_stringformat _6,
+                             px_stringformat _7, px_stringformat _8)
+    px_bool PX_StringFormat7(px_string *str, const px_char fmt[], px_stringformat _1, px_stringformat _2,
+                             px_stringformat _3, px_stringformat _4, px_stringformat _5, px_stringformat _6,
+                             px_stringformat _7)
+    px_bool PX_StringFormat6(px_string *str, const px_char fmt[], px_stringformat _1, px_stringformat _2,
+                             px_stringformat _3, px_stringformat _4, px_stringformat _5, px_stringformat _6)
+    px_bool PX_StringFormat5(px_string *str, const px_char fmt[], px_stringformat _1, px_stringformat _2,
+                             px_stringformat _3, px_stringformat _4, px_stringformat _5)
+    px_bool PX_StringFormat4(px_string *str, const px_char fmt[], px_stringformat _1, px_stringformat _2,
+                             px_stringformat _3, px_stringformat _4)
+    px_bool PX_StringFormat3(px_string *str, const px_char fmt[], px_stringformat _1, px_stringformat _2,
+                             px_stringformat _3)
+    px_bool PX_StringFormat2(px_string *str, const px_char fmt[], px_stringformat _1, px_stringformat _2)
+    px_bool PX_StringFormat1(px_string *str, const px_char fmt[], px_stringformat _1)
+    px_bool PX_StringSet(px_string *str, const px_char fmt[])
+
+
+
+
+
+
+
